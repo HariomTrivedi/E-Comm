@@ -1,4 +1,3 @@
-# shop/views.py
 from rest_framework import generics
 import paypalrestsdk
 from django.conf import settings
@@ -9,8 +8,12 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import Product, Contact, Orders, orderUpdate
 from math import ceil
+import requests
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render
+from django.http import JsonResponse
 
-
+FLASK_API_URL = 'http://192.168.0.100:8000/api/send-message'  
 
 class ProductListCreate(generics.ListCreateAPIView):
     queryset = Product.objects.all()
@@ -37,6 +40,25 @@ class OrderUpdateListCreate(generics.ListCreateAPIView):
 #     "client_id": settings.PAYPAL_CLIENT_ID,
 #     "client_secret": settings.PAYPAL_CLIENT_SECRET
 # })
+
+@csrf_exempt
+def chatbot_view(request):
+    if request.method == 'POST':
+        user_message = request.POST.get('message')  # Get the message from the POST request
+
+        try:
+            response = requests.post(FLASK_API_URL, json={"message": user_message})
+
+            if response.status_code == 200:
+                bot_response = response.json().get("bot_response", "No response")
+                return JsonResponse({"bot_response": bot_response})
+            else:
+                return JsonResponse({"error": "Error in Flask API"}, status=response.status_code)
+        except requests.exceptions.RequestException as e:
+            return JsonResponse({"error": str(e)}, status=500) 
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)  
+    return render(request, 'shop/chat.html') 
 
 def index(request):
     # products = Product.objects.all()

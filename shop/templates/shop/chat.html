@@ -1,0 +1,57 @@
+{% extends "shop/basic.html" %}
+
+{% block body %}
+<form id="chat-form" method="POST">
+    {% csrf_token %}
+    <input type="text" id="message-input" name="message" placeholder="Type a message...">
+    <button type="submit">Send</button>
+</form>
+
+<div id="chat-output"></div>
+{% endblock %}
+
+{% block js %}
+<script>
+    const chatForm = document.getElementById("chat-form");
+    const chatOutput = document.getElementById("chat-output");
+
+    // Function to get the CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrftoken = getCookie('csrftoken');  // Get the CSRF token from cookies
+
+    chatForm.addEventListener("submit", function(event) {
+        event.preventDefault();
+        
+        const formData = new FormData(chatForm);
+        fetch("{% url 'chatbot' %}", {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-CSRFToken": csrftoken  // Set the CSRF token in the header
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const botResponse = data.bot_response || "No response";
+            const messageDiv = document.createElement("div");
+            messageDiv.innerHTML = botResponse;  // Use innerHTML to render HTML content
+            chatOutput.appendChild(messageDiv);
+        })
+        .catch(error => console.error("Error:", error));
+    });
+</script>
+{% endblock %}

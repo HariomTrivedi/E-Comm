@@ -149,3 +149,6 @@ PAYPAL_CLIENT_ID = 'Your_PayPal_Client_ID'
 PAYPAL_CLIENT_SECRET = 'Your_PayPal_Client_Secret'
 PAYPAL_MODE = 'sandbox'  # Change to 'live' in production
 
+# APPEND_SLASH = False  # Disable appending slashes
+
+CSRF_TRUSTED_ORIGINS = ['http://192.168.0.100:8000/']

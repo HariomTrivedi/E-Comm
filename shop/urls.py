@@ -2,6 +2,7 @@
 
 from django.urls import path
 from . import views
+from .views import chatbot_view
 
 urlpatterns = [
     path("", views.index, name="ShopHome"),
@@ -12,6 +13,9 @@ urlpatterns = [
     path("productview/<int:myid>", views.productView, name="ProductView"),
     # path("checkout/", views.checkout, name="Checkout"),
     path('shop/checkout/', views.checkout, name='checkout'),
+    path('chatbot/', chatbot_view, name='chatbot'),
+ 
+    path('api/send-message/', views.chatbot_view, name='send-message'),  
 
     # API endpoints
     path("api/products/", views.ProductListCreate.as_view(), name="product-list-create"),
